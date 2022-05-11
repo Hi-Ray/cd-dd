@@ -40,15 +40,20 @@ const downloadFolder = (URL: string) => {
     let jsonifiedString = `https://${removeCdrag.join('/')}`
 
     // Make a dir
-    fs.mkdirSync('out')
+    try {
+        fs.mkdirSync('out')
+    } catch (e) {
+        logger.error('Directory "out" already exists')
+    }
 
     // Download le files.
     Axios.get(jsonifiedString).then(({data}) => {
         for (let i = 0; i < data.length; i++) {
-            if (data[i].type !== 'file'){
-                continue;
+            if (data[i].type === 'directory'){
+                downloadFolder(`${URL}${data[i].name}/`)
             }
             Download(`${URL}${data[i].name}`).pipe(fs.createWriteStream(`out/${data[i].name}`));
+            logger.info(`Downloaded ${data[i].name}`)
         }
     })
 

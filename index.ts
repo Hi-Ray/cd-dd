@@ -1,14 +1,16 @@
 import Axios from "axios";
 import Download from 'download'
-import fs from 'fs'
 
 import {Command} from "commander";
 import {colorConsole} from "tracer";
-
+import {createWriteStream, mkdirSync} from 'fs'
 
 const logger = colorConsole()
 
-const downloadFolder = (URL: string) => {
+
+const downloadFolder = (URL: string, currentPath: string = '') => {
+
+
     // Check if it's a community dragon link
     if (!URL.includes('communitydragon.org')) {
         logger.fatal('URL is not a valid CommunityDragon link.')
@@ -41,22 +43,27 @@ const downloadFolder = (URL: string) => {
 
     // Make a dir
     try {
-        fs.mkdirSync('out')
+        mkdirSync('out')
     } catch (e) {
-        logger.error('Directory "out" already exists')
     }
 
     // Download le files.
     Axios.get(jsonifiedString).then(({data}) => {
         for (let i = 0; i < data.length; i++) {
-            if (data[i].type === 'directory'){
-                downloadFolder(`${URL}${data[i].name}/`)
+            if (data[i].type === 'directory') {
+                try {
+                    logger.info(`created out/${currentPath}/`)
+                    mkdirSync(`out/${currentPath}/${data[i].name}`)
+                } catch (e) {
+                    logger.error(`Directory exists already`)
+                }
+                downloadFolder(`${URL}${data[i].name}/`, currentPath + data[i].name + '/')
+            } else {
+                Download(`${URL}/`).pipe(createWriteStream(`out/${currentPath + '/' +  data[i].name}`))
+                logger.trace(`Downloaded ${data[i].name}`)
             }
-            Download(`${URL}${data[i].name}`).pipe(fs.createWriteStream(`out/${data[i].name}`));
-            logger.info(`Downloaded ${data[i].name}`)
         }
     })
-
 }
 
 const program = (new Command())

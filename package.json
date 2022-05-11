@@ -1,13 +1,11 @@
 {
   "name": "cddd",
   "version": "1.0.0",
-  "main": "index.js",
   "license": "MIT",
   "scripts": {
     "start": "ts-node index.ts"
   },
   "dependencies": {
-
     "axios": "^0.27.2",
     "commander": "^9.2.0",
     "download": "^8.0.0",

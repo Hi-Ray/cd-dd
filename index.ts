@@ -9,8 +9,6 @@ const logger = colorConsole()
 
 
 const downloadFolder = (URL: string, currentPath: string = '') => {
-
-
     // Check if it's a community dragon link
     if (!URL.includes('communitydragon.org')) {
         logger.fatal('URL is not a valid CommunityDragon link.')
@@ -50,17 +48,23 @@ const downloadFolder = (URL: string, currentPath: string = '') => {
     // Download le files.
     Axios.get(jsonifiedString).then(({data}) => {
         for (let i = 0; i < data.length; i++) {
+            // If is directory recursively download
             if (data[i].type === 'directory') {
                 try {
-                    logger.info(`created out/${currentPath}/`)
+                    // Create directory
                     mkdirSync(`out/${currentPath}/${data[i].name}`)
+                    logger.info(`created out/${currentPath}/${data[i].name}`)
                 } catch (e) {
-                    logger.error(`Directory exists already`)
+                    // Error incase directory exists
+                    logger.error(`Directory out/${currentPath}/${data[i].name} exists already`)
                 }
+                // Download the file
                 downloadFolder(`${URL}${data[i].name}/`, currentPath + data[i].name + '/')
+                logger.info(`Downloaded ${currentPath + data[i].name + '/'}`)
             } else {
+                // Just download if in root directory
                 Download(`${URL}/`).pipe(createWriteStream(`out/${currentPath + '/' +  data[i].name}`))
-                logger.trace(`Downloaded ${data[i].name}`)
+                logger.info(`Downloaded ${data[i].name}`)
             }
         }
     })

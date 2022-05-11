@@ -1,4 +1,5 @@
 # Community Dragon Directory Downloader
+Recursively download directories from community dragon's raw
 
 ## IMPORTANT
 Your urls must end in a "/" you should just copy and paste your urls into the command line

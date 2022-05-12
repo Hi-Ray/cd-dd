@@ -63,7 +63,7 @@ const downloadFolder = (URL: string, currentPath: string = '') => {
                 logger.info(`Downloaded ${currentPath + data[i].name + '/'}`)
             } else {
                 // Just download if in root directory
-                Download(`${URL}/`).pipe(createWriteStream(`out/${currentPath + '/' +  data[i].name}`))
+                Download(`${URL}${data[i].name}`).pipe(createWriteStream(`out/${currentPath + '/' +  data[i].name}`))
                 logger.info(`Downloaded ${data[i].name}`)
             }
         }

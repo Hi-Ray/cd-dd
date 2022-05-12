@@ -43,6 +43,7 @@ const downloadFolder = (URL: string, currentPath: string = '') => {
     try {
         mkdirSync('out')
     } catch (e) {
+        logger.info(`The directory out already exists`)
     }
 
     // Download le files.
@@ -52,19 +53,19 @@ const downloadFolder = (URL: string, currentPath: string = '') => {
             if (data[i].type === 'directory') {
                 try {
                     // Create directory
-                    mkdirSync(`out/${currentPath}/${data[i].name}`)
-                    logger.info(`created out/${currentPath}/${data[i].name}`)
+                    mkdirSync(`out/${currentPath}${data[i].name}`)
+                    logger.info(`created out/${currentPath}${data[i].name}`)
                 } catch (e) {
                     // Error incase directory exists
-                    logger.error(`Directory out/${currentPath}/${data[i].name} exists already`)
+                    logger.error(`Directory out/${currentPath}${data[i].name} exists already`)
                 }
                 // Download the file
                 downloadFolder(`${URL}${data[i].name}/`, currentPath + data[i].name + '/')
                 logger.info(`Downloaded ${currentPath + data[i].name + '/'}`)
             } else {
                 // Just download if in root directory
-                Download(`${URL}${data[i].name}`).pipe(createWriteStream(`out/${currentPath + '/' +  data[i].name}`))
-                logger.info(`Downloaded ${data[i].name}`)
+                Download(`${URL}${data[i].name}`).pipe(createWriteStream(`out/${currentPath +  data[i].name}`))
+                logger.info(`Downloaded out/${currentPath +  data[i].name}`)
             }
         }
     })

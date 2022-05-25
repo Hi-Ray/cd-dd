@@ -20,9 +20,10 @@ const downloadFolder = (URL: string, currentPath: string = '') => {
         logger.fatal('URL is not a folder.')
         return
     }
-    // Foir now set a default
-    let startingStr = URL;
 
+    // For now set a default
+    let startingStr = URL;
+    
     // Strip the "https://"
     if (URL.startsWith('https://')) {
         startingStr = URL.split('//')[1]

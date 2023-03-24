@@ -3,7 +3,7 @@ import Download from 'download'
 
 import {Command} from "commander";
 import {colorConsole} from "tracer";
-import {createWriteStream, mkdirSync} from 'fs'
+import {mkdirSync, writeFileSync, existsSync} from 'fs'
 
 const logger = colorConsole()
 
@@ -49,6 +49,7 @@ const downloadFolder = (URL: string, currentPath: string = '') => {
 
     // Download le files.
     Axios.get(jsonifiedString).then(({data}) => {
+        logger.info(`data length: ${data.length}`)
         for (let i = 0; i < data.length; i++) {
             // If is directory recursively download
             if (data[i].type === 'directory') {
@@ -64,9 +65,16 @@ const downloadFolder = (URL: string, currentPath: string = '') => {
                 downloadFolder(`${URL}${data[i].name}/`, currentPath + data[i].name + '/')
                 logger.info(`Downloaded ${currentPath + data[i].name + '/'}`)
             } else {
+                if (existsSync(`out/${currentPath +  data[i].name}`)) {
+                    continue
+                }
                 // Just download if in root directory
-                Download(`${URL}${data[i].name}`).pipe(createWriteStream(`out/${currentPath +  data[i].name}`))
-                logger.info(`Downloaded out/${currentPath +  data[i].name}`)
+                setTimeout(() => {
+                    Download(`${URL}${data[i].name}`).then((res) => {
+                        writeFileSync(`out/${currentPath +  data[i].name}`, res)
+                        logger.info(`Downloaded out/${currentPath +  data[i].name}`)
+                    })
+                }, 750)
             }
         }
     })

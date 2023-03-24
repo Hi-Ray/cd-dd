@@ -3,12 +3,28 @@ import Download from 'download'
 
 import {Command} from "commander";
 import {colorConsole} from "tracer";
-import {mkdirSync, writeFileSync, existsSync} from 'fs'
+import client from "https";
+import fs, {mkdirSync, writeFileSync, existsSync} from 'fs'
 
 const logger = colorConsole()
 
+const downloadImage = async (url: string, filepath: string) => {
+    return new Promise((resolve, reject) => {
+        client.get(url, (res) => {
+            if (res.statusCode === 200) {
+                res.pipe(fs.createWriteStream(filepath))
+                    .on("error", reject)
+                    .once("close", () => resolve(filepath));
+            } else {
+                // Consume response data to free up memory
+                res.resume();
+                reject(new Error(`Request Failed With a Status Code: ${res.statusCode}`));
+            }
+        });
+    });
+};
 
-const downloadFolder = (URL: string, currentPath: string = '') => {
+const downloadFolder = async (URL: string, currentPath: string = '') => {
     // Check if it's a community dragon link
     if (!URL.includes('communitydragon.org')) {
         logger.fatal('URL is not a valid CommunityDragon link.')
@@ -48,7 +64,7 @@ const downloadFolder = (URL: string, currentPath: string = '') => {
     }
 
     // Download le files.
-    Axios.get(jsonifiedString).then(({data}) => {
+    Axios.get(jsonifiedString).then(async ({data}) => {
         logger.info(`data length: ${data.length}`)
         for (let i = 0; i < data.length; i++) {
             // If is directory recursively download
@@ -65,16 +81,9 @@ const downloadFolder = (URL: string, currentPath: string = '') => {
                 downloadFolder(`${URL}${data[i].name}/`, currentPath + data[i].name + '/')
                 logger.info(`Downloaded ${currentPath + data[i].name + '/'}`)
             } else {
-                if (existsSync(`out/${currentPath +  data[i].name}`)) {
-                    continue
-                }
-                // Just download if in root directory
-                setTimeout(() => {
-                    Download(`${URL}${data[i].name}`).then((res) => {
-                        writeFileSync(`out/${currentPath +  data[i].name}`, res)
-                        logger.info(`Downloaded out/${currentPath +  data[i].name}`)
-                    })
-                }, 750)
+                await downloadImage(`${URL}${data[i].name}`, `out/${currentPath + data[i].name}`);
+				
+				logger.info(`Downloaded out/${currentPath + data[i].name}`);
             }
         }
     })

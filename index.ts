@@ -6,6 +6,7 @@ import { colorConsole } from "tracer";
 import client from "https";
 import fs, { mkdirSync, writeFileSync, existsSync } from 'fs'
 import { options } from "./types/options";
+import path from "path";
 
 const logger = colorConsole()
 
@@ -25,16 +26,19 @@ const downloadFile = async (url: string, filepath: string) => {
     });
 };
 
-const downloadFolder = async (URL: string, options: options, currentPath: string = '') => {
+const downloadDirectory = async (URL: string, options: options, currentPath: string = '') => {
+    const basePath = path.resolve(process.env.INIT_CWD ?? process.cwd() ?? "./", options.output ?? "out");
+    const additionalPath = path.resolve(basePath, currentPath);
+
     // Check if it's a community dragon link
     if (!URL.includes('communitydragon.org')) {
         logger.fatal('URL is not a valid CommunityDragon link.')
         return
     }
 
-    // Check if it's a folder
+    // Check if it's a directory
     if (!URL.endsWith('/')) {
-        logger.fatal('URL is not a folder. URLs must end in a / to be a valid folder.')
+        logger.fatal('URL is not a directory. URLs must end in a / to be a valid directory.')
         return
     }
 
@@ -59,9 +63,9 @@ const downloadFolder = async (URL: string, options: options, currentPath: string
 
     // Make a dir
     try {
-        mkdirSync('out')
+        mkdirSync(basePath, { recursive: true })
     } catch (e) {
-        logger.info(`The directory out already exists`)
+        logger.info(`The directory ${basePath} already exists`)
     }
 
     // Download le files.
@@ -71,24 +75,24 @@ const downloadFolder = async (URL: string, options: options, currentPath: string
             // If is directory recursively download
             if (data[i].type === 'directory') {
                 if (!options.recursive) {
-                    // Skip folder when recursive download is not enabled
+                    // Skip directory when recursive download is not enabled
                     continue;
                 }
                 try {
                     // Create directory
-                    mkdirSync(`out/${currentPath}${data[i].name}`)
-                    logger.info(`created out/${currentPath}${data[i].name}`)
+                    mkdirSync(`${basePath}/${currentPath}${data[i].name}`)
+                    logger.info(`created ${basePath}/${currentPath}${data[i].name}`)
                 } catch (e) {
                     // Error incase directory exists
-                    logger.error(`Directory out/${currentPath}${data[i].name} exists already`)
+                    logger.error(`Directory ${basePath}/${currentPath}${data[i].name} exists already`)
                 }
-                // Download the file
-                downloadFolder(`${URL}${data[i].name}/`, options, currentPath + data[i].name + '/')
+                // Download the files in the directory
+                downloadDirectory(`${URL}${data[i].name}/`, options, currentPath + data[i].name + '/')
                 logger.info(`Downloaded ${currentPath + data[i].name + '/'}`)
             } else {
-                await downloadFile(`${URL}${data[i].name}`, `out/${currentPath + data[i].name}`);
-
-                logger.info(`Downloaded out/${currentPath + data[i].name}`);
+                // Download the file
+                await downloadFile(`${URL}${data[i].name}`, `${basePath}/${currentPath + data[i].name}`);
+                logger.info(`Downloaded ${basePath}/${currentPath + data[i].name}`);
             }
         }
     })
@@ -96,10 +100,10 @@ const downloadFolder = async (URL: string, options: options, currentPath: string
 
 const program = (new Command())
     .argument('<URL>', 'URL starting with https://')
-    .option('-o, --output <output>', 'Output folder location. Default is ./out')
-    .option('-r, --recursive', 'Recursively download folder and files')
-    .option('-k, --keep-files', 'Keep files if they already exist in the output folder')
-    .action((url: string, options: options) => downloadFolder(url, options))
+    .option('-o, --output <output>', 'Output directory location. Default is ./out')
+    .option('-r, --recursive', 'Recursively download directory and files')
+    .option('-k, --keep-files', 'Keep files if they already exist in the output directory')
+    .action((url: string, options: options) => downloadDirectory(url, options))
     .version('1.0.0');
 
 // Parse the CLI

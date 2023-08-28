@@ -20,7 +20,7 @@ const downloadFile = async (url: string, filepath: string) => {
             } else {
                 // Consume response data to free up memory
                 res.resume();
-                reject(new Error(`Request Failed With a Status Code: ${res.statusCode}`));
+                reject(new Error(`Request ${url} Failed With a Status Code: ${res.statusCode}`));
             }
         });
     });
@@ -52,11 +52,12 @@ const downloadDirectory = async (URL: string, options: options, currentPath: str
 
     // remove Community dragon temporarily
     let removeCdrag = startingStr.split('/')
+    let domain = removeCdrag[0];
 
     removeCdrag.shift()
 
     // Re add the raw link with the json token
-    removeCdrag.unshift('raw.communitydragon.org', 'json')
+    removeCdrag.unshift(domain, 'json')
 
     // Add back in
     let jsonifiedString = `https://${removeCdrag.join('/')}`

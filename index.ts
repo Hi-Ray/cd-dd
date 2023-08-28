@@ -1,10 +1,11 @@
 import Axios from "axios";
 import Download from 'download'
 
-import {Command} from "commander";
-import {colorConsole} from "tracer";
+import { Command } from "commander";
+import { colorConsole } from "tracer";
 import client from "https";
-import fs, {mkdirSync, writeFileSync, existsSync} from 'fs'
+import fs, { mkdirSync, writeFileSync, existsSync } from 'fs'
+import { options } from "./types/options";
 
 const logger = colorConsole()
 
@@ -24,7 +25,9 @@ const downloadImage = async (url: string, filepath: string) => {
     });
 };
 
-const downloadFolder = async (URL: string, currentPath: string = '') => {
+const downloadFolder = async (URL: string, options: options, currentPath: string = '') => {
+    console.log(options);
+    console.log(currentPath);
     // Check if it's a community dragon link
     if (!URL.includes('communitydragon.org')) {
         logger.fatal('URL is not a valid CommunityDragon link.')
@@ -33,13 +36,13 @@ const downloadFolder = async (URL: string, currentPath: string = '') => {
 
     // Check if it's a folder
     if (!URL.endsWith('/')) {
-        logger.fatal('URL is not a folder.')
+        logger.fatal('URL is not a folder. URLs must end in a / to be a valid folder.')
         return
     }
 
     // For now set a default
     let startingStr = URL;
-    
+
     // Strip the "https://"
     if (URL.startsWith('https://')) {
         startingStr = URL.split('//')[1]
@@ -64,11 +67,15 @@ const downloadFolder = async (URL: string, currentPath: string = '') => {
     }
 
     // Download le files.
-    Axios.get(jsonifiedString).then(async ({data}) => {
+    Axios.get(jsonifiedString).then(async ({ data }) => {
         logger.info(`data length: ${data.length}`)
         for (let i = 0; i < data.length; i++) {
             // If is directory recursively download
             if (data[i].type === 'directory') {
+                if (!options.recursive) {
+                    // Skip folder when recursive download is not enabled
+                    continue;
+                }
                 try {
                     // Create directory
                     mkdirSync(`out/${currentPath}${data[i].name}`)
@@ -78,12 +85,12 @@ const downloadFolder = async (URL: string, currentPath: string = '') => {
                     logger.error(`Directory out/${currentPath}${data[i].name} exists already`)
                 }
                 // Download the file
-                downloadFolder(`${URL}${data[i].name}/`, currentPath + data[i].name + '/')
+                downloadFolder(`${URL}${data[i].name}/`, options, currentPath + data[i].name + '/')
                 logger.info(`Downloaded ${currentPath + data[i].name + '/'}`)
             } else {
                 await downloadImage(`${URL}${data[i].name}`, `out/${currentPath + data[i].name}`);
-				
-				logger.info(`Downloaded out/${currentPath + data[i].name}`);
+
+                logger.info(`Downloaded out/${currentPath + data[i].name}`);
             }
         }
     })
@@ -91,7 +98,10 @@ const downloadFolder = async (URL: string, currentPath: string = '') => {
 
 const program = (new Command())
     .argument('<URL>', 'URL starting with https://')
-    .action((url: string) => downloadFolder(url))
+    .option('-o, --output <output>', 'Output folder location. Default is ./out')
+    .option('-r, --recursive', 'Recursively download folder and files')
+    .option('-k, --keep-files', 'Keep files if they already exist in the output folder')
+    .action((url: string, options: options) => downloadFolder(url, options))
     .version('1.0.0');
 
 // Parse the CLI

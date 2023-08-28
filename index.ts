@@ -65,10 +65,12 @@ const downloadDirectory = async (URL: string, options: options, currentPath: str
     let jsonifiedString = `https://${removeCdrag.join('/')}`
 
     // Make a dir
-    try {
-        mkdirSync(basePath, { recursive: true })
-    } catch (e) {
-        logger.info(`The directory ${basePath} already exists`)
+    if (basePath === additionalPath) {
+        if (!existsSync(basePath)) {
+            mkdirSync(basePath, { recursive: true })
+        } else {
+            logger.info(`The directory ${basePath} already exists. This can result in you writing files to a folder that already has other content in it. If that is intended, you are safe to ignore this warning.`)
+        }
     }
 
     // Download le files.

@@ -1,9 +1,12 @@
 {
-  "name": "cddd",
-  "version": "1.0.0",
+  "name": "cd-dd",
+  "version": "2.0.0",
   "license": "MIT",
-  "scripts": {
-    "start": "ts-node index.ts"
+	"main": "dist/index.js",
+	"scripts": {
+    "start": "ts-node index.ts",
+		"build": "tsc -p .",
+		"test": "echo \"No test specified\""
   },
   "dependencies": {
     "axios": "^0.27.2",
@@ -17,5 +20,6 @@
     "ts-node": "^10.7.0",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.6.4"
-  }
+  },
+  "packageManager": "yarn@1.22.19"
 }

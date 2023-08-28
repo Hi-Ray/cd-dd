@@ -1,7 +1,7 @@
 import Axios from "axios";
 import Download from 'download'
 
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import { colorConsole } from "tracer";
 import client from "https";
 import fs, { mkdirSync, writeFileSync, existsSync, openSync, readFileSync, closeSync } from 'fs'
@@ -30,6 +30,7 @@ const downloadFile = async (url: string, filepath: string) => {
 const downloadDirectory = async (URL: string, options: options, currentPath: string = '') => {
     const basePath = path.resolve(process.env.INIT_CWD ?? process.cwd() ?? "./", options.output ?? "out");
     const additionalPath = path.resolve(basePath, currentPath);
+    if (options.keepFiles === true) options.keepFiles = 'all';
 
     // Check if it's a community dragon link
     if (!URL.includes('communitydragon.org')) {
@@ -75,7 +76,7 @@ const downloadDirectory = async (URL: string, options: options, currentPath: str
         logger.info(`data length: ${data.length}`)
 
         // Read content of caching file
-        if (options.keepFiles && existsSync(`${additionalPath}/.cddd`)) {
+        if (options.keepFiles === 'all' && existsSync(`${additionalPath}/.cddd`)) {
             const file = openSync(`${additionalPath}/.cddd`, 'r');
             const content = readFileSync(file);
             closeSync(file);
@@ -132,7 +133,7 @@ const downloadDirectory = async (URL: string, options: options, currentPath: str
 
         // write compressed caching file to folder
         data = data.filter((n: any) => n.length)
-        if (data.length > 0) {
+        if (data.length > 0 && options.keepFiles !== 'nothing') {
             const file = openSync(`${additionalPath}/.cddd`, 'w+');
             writeFileSync(file, gzipSync(JSON.stringify(data)));
             closeSync(file);
@@ -145,7 +146,7 @@ const program = (new Command())
     .argument('<URL>', 'URL starting with https://')
     .option('-o, --output <output>', 'Output directory location. Default is ./out')
     .option('-r, --recursive', 'Recursively download directory and files')
-    .option('-k, --keep-files', 'Keep files if they already exist in the output directory')
+    .addOption(new Option('-k, --keep-files [mode]', 'Keep files if they already exist in the output directory').choices(['all', 'replace', 'nothing']).default("all"))
     .action((url: string, options: options) => downloadDirectory(url, options))
     .version('1.0.0');
 

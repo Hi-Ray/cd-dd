@@ -89,8 +89,9 @@ const downloadDirectory = async (URL: string, options: options, currentPath: str
                 for (let i = index; i < data.length; i++) {
                     if (data[i].name === fileName) {
                         index = i;
-                        if (fileAge === Math.floor(new Date(data[i].mtime).getTime() / 1000)) {
-                            data.splice(i, 1);
+                        if (fileAge === Math.floor(new Date(data[i].mtime).getTime() / 1000)
+                            && data[i].type !== 'directory' && existsSync(`${basePath}/${currentPath}${data[i].name}`)) {
+                            data[i].fetch = false;
                         }
                         break;
                     }
@@ -101,8 +102,9 @@ const downloadDirectory = async (URL: string, options: options, currentPath: str
         for (let i = 0; i < data.length; i++) {
             // If is directory recursively download
             if (data[i].type === 'directory') {
-                if (!options.recursive) {
+                if (!options.recursive || data[i].fetch === false) {
                     // Skip directory when recursive download is not enabled
+                    data[i] = [];
                     continue;
                 }
                 try {
@@ -118,10 +120,13 @@ const downloadDirectory = async (URL: string, options: options, currentPath: str
                 logger.info(`Downloaded ${currentPath + data[i].name + '/'}`)
                 data[i] = [];
             } else {
-                // Download the file
-                await downloadFile(`${URL}${data[i].name}`, `${basePath}/${currentPath + data[i].name}`);
-                logger.info(`Downloaded ${basePath}/${currentPath + data[i].name}`);
+                if (data[i].fetch !== false) {
+                    // Download the file
+                    await downloadFile(`${URL}${data[i].name}`, `${basePath}/${currentPath + data[i].name}`);
+                    logger.info(`Downloaded ${basePath}/${currentPath + data[i].name}`);
+                }
                 data[i] = [data[i].name, Math.floor(new Date(data[i].mtime).getTime() / 1000)]
+
             }
         }
 

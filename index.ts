@@ -9,7 +9,7 @@ import { options } from "./types/options";
 
 const logger = colorConsole()
 
-const downloadImage = async (url: string, filepath: string) => {
+const downloadFile = async (url: string, filepath: string) => {
     return new Promise((resolve, reject) => {
         client.get(url, (res) => {
             if (res.statusCode === 200) {
@@ -26,8 +26,6 @@ const downloadImage = async (url: string, filepath: string) => {
 };
 
 const downloadFolder = async (URL: string, options: options, currentPath: string = '') => {
-    console.log(options);
-    console.log(currentPath);
     // Check if it's a community dragon link
     if (!URL.includes('communitydragon.org')) {
         logger.fatal('URL is not a valid CommunityDragon link.')
@@ -88,7 +86,7 @@ const downloadFolder = async (URL: string, options: options, currentPath: string
                 downloadFolder(`${URL}${data[i].name}/`, options, currentPath + data[i].name + '/')
                 logger.info(`Downloaded ${currentPath + data[i].name + '/'}`)
             } else {
-                await downloadImage(`${URL}${data[i].name}`, `out/${currentPath + data[i].name}`);
+                await downloadFile(`${URL}${data[i].name}`, `out/${currentPath + data[i].name}`);
 
                 logger.info(`Downloaded out/${currentPath + data[i].name}`);
             }

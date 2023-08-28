@@ -4,9 +4,10 @@ import Download from 'download'
 import { Command } from "commander";
 import { colorConsole } from "tracer";
 import client from "https";
-import fs, { mkdirSync, writeFileSync, existsSync } from 'fs'
+import fs, { mkdirSync, writeFileSync, existsSync, openSync, readFileSync, closeSync } from 'fs'
 import { options } from "./types/options";
 import path from "path";
+import { gunzip, gunzipSync, gzipSync, inflateSync } from "zlib";
 
 const logger = colorConsole()
 
@@ -72,6 +73,31 @@ const downloadDirectory = async (URL: string, options: options, currentPath: str
     // Download le files.
     Axios.get(jsonifiedString).then(async ({ data }) => {
         logger.info(`data length: ${data.length}`)
+
+        // Read content of caching file
+        if (options.keepFiles && existsSync(`${additionalPath}/.cddd`)) {
+            const file = openSync(`${additionalPath}/.cddd`, 'r');
+            const content = readFileSync(file);
+            closeSync(file);
+            const files = JSON.parse(gunzipSync(content).toString('utf-8'));
+
+            // Loop through the cached files and compare them to the live version
+            let index = 0;
+            files.forEach((file: Array<string | number>) => {
+                const fileName = file[0] as string;
+                const fileAge = file[1] as number;
+                for (let i = index; i < data.length; i++) {
+                    if (data[i].name === fileName) {
+                        index = i;
+                        if (fileAge === Math.floor(new Date(data[i].mtime).getTime() / 1000)) {
+                            data.splice(i, 1);
+                        }
+                        break;
+                    }
+                }
+            });
+        }
+
         for (let i = 0; i < data.length; i++) {
             // If is directory recursively download
             if (data[i].type === 'directory') {
@@ -85,17 +111,28 @@ const downloadDirectory = async (URL: string, options: options, currentPath: str
                     logger.info(`created ${basePath}/${currentPath}${data[i].name}`)
                 } catch (e) {
                     // Error incase directory exists
-                    logger.error(`Directory ${basePath}/${currentPath}${data[i].name} exists already`)
+                    logger.info(`Directory ${basePath}/${currentPath}${data[i].name} exists already`)
                 }
                 // Download the files in the directory
                 downloadDirectory(`${URL}${data[i].name}/`, options, currentPath + data[i].name + '/')
                 logger.info(`Downloaded ${currentPath + data[i].name + '/'}`)
+                data[i] = [];
             } else {
                 // Download the file
                 await downloadFile(`${URL}${data[i].name}`, `${basePath}/${currentPath + data[i].name}`);
                 logger.info(`Downloaded ${basePath}/${currentPath + data[i].name}`);
+                data[i] = [data[i].name, Math.floor(new Date(data[i].mtime).getTime() / 1000)]
             }
         }
+
+        // write compressed caching file to folder
+        data = data.filter((n: any) => n.length)
+        if (data.length > 0) {
+            const file = openSync(`${additionalPath}/.cddd`, 'w+');
+            writeFileSync(file, gzipSync(JSON.stringify(data)));
+            closeSync(file);
+        }
+
     })
 }
 

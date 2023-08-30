@@ -1,5 +1,4 @@
 import Axios from "axios";
-import Download from 'download'
 
 import { Command, Option } from "commander";
 import { colorConsole } from "tracer";
@@ -7,7 +6,7 @@ import client from "https";
 import fs, { mkdirSync, writeFileSync, existsSync, openSync, readFileSync, closeSync } from 'fs'
 import { options } from "./types/options";
 import path from "path";
-import { gunzip, gunzipSync, gzipSync, inflateSync } from "zlib";
+import { gunzipSync, gzipSync } from "zlib";
 
 const logger = colorConsole()
 

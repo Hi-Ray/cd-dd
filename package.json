@@ -2,23 +2,21 @@
   "name": "cdragon-dd",
   "version": "2.0.4",
   "license": "MIT",
-	"main": "dist/index.js",
-	"bin": {
-		"cd-dd": "dist/index.js"
-	},
-	"scripts": {
+  "main": "dist/index.js",
+  "bin": {
+    "cd-dd": "dist/index.js"
+  },
+  "scripts": {
     "start": "ts-node index.ts",
-		"build": "tsc -p .",
-		"test": "echo \"No test specified\""
+    "build": "tsc -p .",
+    "test": "echo \"No test specified\""
   },
   "dependencies": {
     "axios": "^0.27.2",
     "commander": "^9.2.0",
-    "download": "^8.0.0",
     "tracer": "^1.1.5"
   },
   "devDependencies": {
-    "@types/download": "^8.0.1",
     "@types/node": "^17.0.31",
     "ts-node": "^10.7.0",
     "ts-node-dev": "^1.1.8",

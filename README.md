@@ -41,7 +41,7 @@ Download all the files in the directory (URL) and don't cache results.
 
 ## Flags
 ```
-Usage: yarn start [options] <URL>
+Usage: cd-dd [options] <URL>
 
 Arguments:
   URL                      URL starting with https://

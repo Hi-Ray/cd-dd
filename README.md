@@ -6,13 +6,9 @@ Download directories from community dragon's cdn
 ## IMPORTANT
 Your urls must end in a "/" you should just copy and paste your urls into the command line
 
-## Requirements
-    - Nodejs
-    - Yarn or NPM
-
 ## Usage
 
-If you want to install this package without npm, please read the documentation [here](https://github.com/Hi-Ray/cd-dd/blob/master/install-with-git.md).
+If you want to install this package without npmjs, please read the documentation [here](https://github.com/Hi-Ray/cd-dd/blob/master/install-with-git.md).
 
 ```shell
 > npm i cdragon-dd # install the package for your current project

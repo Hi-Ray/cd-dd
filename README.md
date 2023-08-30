@@ -8,8 +8,8 @@ Your urls must end in a "/" you should just copy and paste your urls into the co
 
 ## Usage
 
+You can either download and run a prebuilt binary from the [releases tab](https://github.com/Hi-Ray/cd-dd/releases) or install the package via npmjs.  
 If you want to install this package without npmjs, please read the documentation [here](https://github.com/Hi-Ray/cd-dd/blob/master/install-with-git.md).
-
 ```shell
 > npm i cdragon-dd # install the package for your current project
 > npm i cdragon-dd -g # install the package as a global CLI tool

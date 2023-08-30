@@ -1,46 +1,42 @@
 # Community Dragon Directory Downloader
-[![NPM Version](https://img.shields.io/npm/v/cdragon-dd.svg?style=flat-square)](https://www.npmjs.com/package/cdragon-dd) [![NPM Version](https://img.shields.io/npm/dm/cdragon-dd.svg?style=flat-square)](https://www.npmjs.com/package/cdragon-dd)  
 Download directories from community dragon's cdn
-
 
 ## IMPORTANT
 Your urls must end in a "/" you should just copy and paste your urls into the command line
 
 ## Requirements
+    - Git
     - Nodejs
-    - Yarn or NPM
+    - Yarn (Optional but recommended)
 
 ## Usage
-
-If you want to install this package without npm, please read the documentation [here](https://github.com/Hi-Ray/cd-dd/blob/master/install-with-git.md).
-
 ```shell
-> npm i cdragon-dd # install the package for your current project
-> npm i cdragon-dd -g # install the package as a global CLI tool
-> cd-dd <url> [...flags]
+> git clone https://github.com/Hi-Ray/cd-dd.git
+> yarn # or you can use "npm install"
+> yarn start <url> [...flags] # or "npm start <url> [...flags]"
 ```
 
 ## Usage example
 
 Download all the files in the directory (URL). 
 ```shell
-> cd-dd https://raw.communitydragon.org/latest/game/data/images/
+> yarn start https://raw.communitydragon.org/latest/game/data/images/
 ```
 
 Download all the files in the directory (URL) and its subdirectories (recursive). 
 ```shell
-> cd-dd -r https://raw.communitydragon.org/latest/game/data/images/
+> yarn start -r https://raw.communitydragon.org/latest/game/data/images/
 ```
 
 Download all the files in the directory (URL) and its subdirectories (recursive) into the local directory `./data`. 
 ```shell
-> cd-dd -o ./data -r https://raw.communitydragon.org/latest/game/data/images/
+> yarn start -o ./data -r https://raw.communitydragon.org/latest/game/data/images/
 ```
 
 Download all the files in the directory (URL) and don't cache results. 
 ```shell
-> cd-dd -k replace -r https://raw.communitydragon.org/latest/game/data/images/
-> cd-dd -k nothing -r https://raw.communitydragon.org/latest/game/data/images/
+> yarn start -k replace -r https://raw.communitydragon.org/latest/game/data/images/
+> yarn start -k nothing -r https://raw.communitydragon.org/latest/game/data/images/
 ```
 
 ## Flags

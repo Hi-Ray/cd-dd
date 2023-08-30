@@ -1,1 +1,5 @@
 out/
+.idea/
+.yarn/
+README.md
+install-with-git.md

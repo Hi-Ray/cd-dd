@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import Axios from "axios";
 
 import { Command, Option } from "commander";

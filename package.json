@@ -6,6 +6,10 @@
   "bin": {
     "cd-dd": "dist/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hi-Ray/cd-dd.git"
+  },
   "scripts": {
     "start": "ts-node index.ts",
     "build": "tsc -p .",

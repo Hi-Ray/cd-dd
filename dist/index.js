@@ -116,14 +116,24 @@ const downloadDirectory = async (URL, options, currentPath = '') => {
                 catch (e) {
                     logger.info(`Directory ${basePath}/${currentPath}${data[i].name} exists already`);
                 }
-                downloadDirectory(`${URL}${data[i].name}/`, options, currentPath + data[i].name + '/');
-                logger.info(`Downloaded ${currentPath + data[i].name + '/'}`);
+                try {
+                    await downloadDirectory(`${URL}${data[i].name}/`, options, currentPath + data[i].name + '/');
+                    logger.info(`Downloaded ${currentPath + data[i].name + '/'}`);
+                }
+                catch (e) {
+                    logger.error(`Failed to download: ${currentPath + data[i].name + '/'}`);
+                }
                 data[i] = [];
             }
             else {
                 if (data[i].fetch !== false) {
-                    await downloadFile(`${URL}${data[i].name}`, `${basePath}/${currentPath + data[i].name}`);
-                    logger.info(`Downloaded ${basePath}/${currentPath + data[i].name}`);
+                    try {
+                        await downloadFile(`${URL}${data[i].name}`, `${basePath}/${currentPath + data[i].name}`);
+                        logger.info(`Downloaded ${basePath}/${currentPath + data[i].name}`);
+                    }
+                    catch (e) {
+                        logger.error(`Failed to download: ${basePath}/${currentPath + data[i].name}`);
+                    }
                 }
                 data[i] = [data[i].name, Math.floor(new Date(data[i].mtime).getTime() / 1000)];
             }

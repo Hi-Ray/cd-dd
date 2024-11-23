@@ -120,7 +120,7 @@ const downloadDirectory = async (URL: string, options: options, currentPath: str
                 }
                 // Download the files in the directory
 				try {
-					await downloadDirectory(`${URL}${data[i].name}/`, options, currentPath + data[i].name + '/')
+					await downloadDirectory(`${URL}${encodeURIComponent(data[i].name)}/`, options, currentPath + data[i].name + '/')
 					logger.info(`Downloaded ${currentPath + data[i].name + '/'}`)
 				} catch (e) {
 					logger.error(`Failed to download: ${currentPath + data[i].name + '/'}`)
@@ -130,7 +130,7 @@ const downloadDirectory = async (URL: string, options: options, currentPath: str
                 if (data[i].fetch !== false) {
                     // Download the file
 					try {
-						await downloadFile(`${URL}${data[i].name}`, `${basePath}/${currentPath + data[i].name}`);
+						await downloadFile(`${URL}${encodeURIComponent(data[i].name)}`, `${basePath}/${currentPath + data[i].name}`);
 						logger.info(`Downloaded ${basePath}/${currentPath + data[i].name}`);
 					} catch (e) {
 						logger.error(`Failed to download: ${basePath}/${currentPath + data[i].name}`)
